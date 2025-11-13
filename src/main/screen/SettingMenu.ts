@@ -1,7 +1,8 @@
-import { is } from '@electron-toolkit/utils'
 import { BrowserWindow, shell } from 'electron'
-import { join } from 'path'
 import { rendererVisible, windowsMap } from '..'
+
+import { is } from '@electron-toolkit/utils'
+import { join } from 'path'
 export let childWindow: BrowserWindow | null = null
 
 export const createSettingMenu = ({ top }: { top: BrowserWindow }): BrowserWindow => {
@@ -72,7 +73,7 @@ export const createSettingMenu = ({ top }: { top: BrowserWindow }): BrowserWindo
   // HMR for renderer base on electron-vite cli.
   // Load the remote URL for development or the local html file for production.
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
-    childWindow.loadURL(process.env['ELECTRON_RENDERER_URL'] + '#settingmenu')
+    childWindow.loadURL(process.env['ELECTRON_RENDERER_URL'] + '#/settingmenu')
   } else {
     childWindow.loadFile(join(__dirname, '../renderer/index.html'), {
       hash: '#/settingmenu'

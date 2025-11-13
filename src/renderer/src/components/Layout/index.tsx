@@ -47,12 +47,40 @@ export default function Layout({
       toggleFade(data)
     }
 
-    window.electron.ipcRenderer.on('invoke-render-method', invokeRenderMethod)
+    // 优先使用 preload 注入的 ipcRenderer；兜底使用 nodeIntegration 的 require
+    const fallbackIpc =
+      typeof window !== 'undefined' &&
+      // @ts-ignore
+      typeof window.require === 'function'
+        ? // @ts-ignore
+          window.require('electron').ipcRenderer
+        : undefined
+    const ipc = window.electron?.ipcRenderer ?? fallbackIpc
+
+    if (!ipc) {
+      console.warn('[Layout] ipcRenderer 未就绪，尝试延迟绑定')
+      const timer = setTimeout(() => {
+        const retryIpc = window.electron?.ipcRenderer ?? fallbackIpc
+        if (retryIpc) {
+          retryIpc.on('invoke-render-method', invokeRenderMethod)
+        } else {
+          console.error('[Layout] ipcRenderer 仍不可用，跳过绑定')
+        }
+      }, 100)
+      return (): void => clearTimeout(timer)
+    }
+
+    ipc.on('invoke-render-method', invokeRenderMethod)
+
+    // 组件挂载时，如果 defaultVisible 为 true，则显示内容
+    if (defaultVisible) {
+      toggleFade(true)
+    }
 
     return (): void => {
-      window.electron.ipcRenderer.removeListener('invoke-render-method', invokeRenderMethod)
+      ipc.removeListener('invoke-render-method', invokeRenderMethod)
     }
-  }, [])
+  }, [defaultVisible])
 
   return (
     <LayoutProvider

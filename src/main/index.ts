@@ -117,12 +117,13 @@ app.whenReady().then(() => {
     ) => {
       const winScreen = windowsMap.get(win)
       if (winScreen) {
-        if (!visibility) {
+        if (visibility) {
           // 逻辑：显示窗口
-          winScreen?.hide()
+          winScreen?.show()
+          winScreen?.focus()
         } else {
           // 逻辑：隐藏窗口
-          winScreen?.show()
+          winScreen?.hide()
         }
       }
     }

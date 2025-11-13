@@ -8,17 +8,40 @@ const { Countdown } = Statistic
 export default function Home(): JSX.Element {
   const { t, i18n } = useTranslation()
   const [time, setTime] = useState(0)
-  const ipcHandle = (): void => window.electron.ipcRenderer.send('ping')
-  const ipcHandleCreateSettingMenu = (): void =>
-    window.electron.ipcRenderer.send('createSettingMenu')
-  const ipcHandleCreateFull = (): void => window.electron.ipcRenderer.send('createFullscreen')
+  const getIpc = () => {
+    const fallbackIpc =
+      typeof window !== 'undefined' &&
+      // @ts-ignore
+      typeof window.require === 'function'
+        ? // @ts-ignore
+          window.require('electron').ipcRenderer
+        : undefined
+    return window.electron?.ipcRenderer ?? fallbackIpc
+  }
+
+  const ipcHandle = (): void => getIpc()?.send('ping')
+  const ipcHandleCreateSettingMenu = (): void => getIpc()?.send('createSettingMenu')
+  const ipcHandleCreateFull = (): void => getIpc()?.send('createFullscreen')
 
   useEffect(() => {
     // 初始化倒计时显示
-    window.timer.getRemainingTime().then((remainingTime) => {
-      console.log(`Time updated: ${remainingTime}s`)
-      setTime(Date.now() + remainingTime * 1000)
-    })
+    const initTimer = async (): Promise<void> => {
+      try {
+        if (window.timer && typeof window.timer.getRemainingTime === 'function') {
+          const remainingTime = await window.timer.getRemainingTime()
+          console.log(`Time updated: ${remainingTime}s`)
+          setTime(Date.now() + remainingTime * 1000)
+        } else {
+          console.warn('Timer API not available, using default time')
+          setTime(Date.now() + 25 * 60 * 1000) // 默认25分钟
+        }
+      } catch (error) {
+        console.error('Failed to get remaining time:', error)
+        setTime(Date.now() + 25 * 60 * 1000) // 默认25分钟
+      }
+    }
+    
+    initTimer()
   }, [])
 
   return (

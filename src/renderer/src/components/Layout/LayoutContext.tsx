@@ -47,7 +47,7 @@ export const LayoutProvider: React.FC<LayoutProviderProps> = ({
 export const useLayoutContext = (): LayoutContextType => {
   const context = useContext(LayoutContext)
   if (!context) {
-    throw new Error('useAppContext must be used within an AppProvider')
+    throw new Error('useLayoutContext must be used within an LayoutProvider')
   }
   return context
 }

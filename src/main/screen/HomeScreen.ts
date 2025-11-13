@@ -28,10 +28,18 @@ function showWindow(): void {
       visible: true,
       mainWindow: mainWindow
     })
+  } else {
+    console.error('Main window is not created yet')
   }
 }
 
 export const createHomescreen = (): BrowserWindow => {
+  // 如果窗口已经存在，直接返回
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    console.log('Home window already exists')
+    return mainWindow
+  }
+
   // 获取主屏幕的完整尺寸（包括信号栏/任务栏区域）
   mainWindow = new BrowserWindow({
     resizable: false, // 禁止调整窗口大小
@@ -69,9 +77,15 @@ export const createHomescreen = (): BrowserWindow => {
   })
 
   mainWindow.on('ready-to-show', () => {
-    mainWindow && windowsMap.set(mainWindow?.id, mainWindow)
-    // 项目第一次启动，自动打开
-    showWindow()
+    if (mainWindow) {
+      windowsMap.set(mainWindow.id, mainWindow)
+      // 项目第一次启动，自动打开
+      console.log('Home window ready to show')
+      // 延迟显示窗口，确保渲染进程准备就绪
+      setTimeout(() => {
+        showWindow()
+      }, 100)
+    }
 
     tray?.on('click', () => {
       toggleWindow()
@@ -94,9 +108,11 @@ export const createHomescreen = (): BrowserWindow => {
   // HMR for renderer base on electron-vite cli.
   // Load the remote URL for development or the local html file for production.
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
-    mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
+    mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'] + '#/')
   } else {
-    mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
+    mainWindow.loadFile(join(__dirname, '../renderer/index.html'), {
+      hash: '#/'
+    })
   }
 
   ipcMain.on('createSettingMenu', () => {
