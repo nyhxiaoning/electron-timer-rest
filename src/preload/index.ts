@@ -1,9 +1,10 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 import timerAPI from './tasks'
+import notesAPI from './notesAPI'
 
 // Custom APIs for renderer
-const api = {}
+const api = notesAPI
 
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise

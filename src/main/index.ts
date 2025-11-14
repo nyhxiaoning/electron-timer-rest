@@ -4,6 +4,7 @@ import cloudTemplate from '../../resources/tray/cloudTemplate.png?asset'
 import { createHomescreen } from './screen/HomeScreen'
 import Scheduler from './tasks/scheduler'
 import { createFullscreen } from './screen/Fullscreen'
+import { initializeNotesIPC, cleanupNotesIPC } from './ipc/notesIPC'
 export const windowsMap = new Map<number, BrowserWindow>()
 
 // Hide the dock icon on macOS
@@ -136,6 +137,7 @@ app.whenReady().then(() => {
   createTray()
   createHomescreen()
   tasks()
+  initializeNotesIPC() // 初始化笔记IPC
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
@@ -151,6 +153,7 @@ app.whenReady().then(() => {
 // explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
+    cleanupNotesIPC() // 清理笔记IPC
     app.quit()
   }
 })

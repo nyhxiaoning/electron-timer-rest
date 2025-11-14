@@ -4,6 +4,7 @@ import { Routes, Route, HashRouter as Router, Navigate } from 'react-router-dom'
 import Overlook from './views/Overlook'
 import Home from './views/Home'
 import SettingMenu from './views/SettingMenu'
+import NotesManager from './views/NotesManager/NotesManager'
 import Layout from './components/Layout'
 import ErrorBoundary from './components/ErrorBoundary'
 
@@ -39,6 +40,16 @@ function App(): JSX.Element {
                 <ErrorBoundary title="设置菜单异常">
                   <Layout type="none" defaultVisible>
                     <SettingMenu />
+                  </Layout>
+                </ErrorBoundary>
+              }
+            />
+            <Route
+              path="/notes"
+              element={
+                <ErrorBoundary title="笔记管理异常">
+                  <Layout>
+                    <NotesManager />
                   </Layout>
                 </ErrorBoundary>
               }

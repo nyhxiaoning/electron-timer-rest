@@ -1,9 +1,10 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
+import { NotesAPI } from './notesAPI'
 
 declare global {
   interface Window {
     electron: ElectronAPI
-    api: unknown
+    api: NotesAPI
     timer: {
       reset: () => void
       getRemainingTime: () => Promise<number>
